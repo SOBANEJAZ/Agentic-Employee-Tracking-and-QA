@@ -9,6 +9,10 @@ from requests.exceptions import RequestException
 load_dotenv()
 
 class MondayClient:
+    """
+    A robust client for interacting with the Monday.com GraphQL API.
+    Supports item fetching, column updates, and retry logic for complexity limits.
+    """
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("MONDAY_API_KEY")
         if not self.api_key:
@@ -21,7 +25,16 @@ class MondayClient:
         }
 
     def post_query(self, query: str, variables: Optional[Dict] = None) -> Dict:
-        """Make a POST request to the Monday.com API."""
+        """
+        Executes a raw GraphQL POST request.
+        
+        Args:
+            query: The GraphQL query string.
+            variables: Optional variables for the query.
+        
+        Returns:
+            The JSON response dictionary.
+        """
         response = requests.post(
             self.url, 
             json={"query": query, "variables": variables}, 

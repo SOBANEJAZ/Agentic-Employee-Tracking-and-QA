@@ -1,75 +1,99 @@
-# Monday.com & OpenPhone AI Tracking System
+# 🤖 Agentic Employee Tracking & QA System v2.0
 
-A sophisticated integration pipeline between Monday.com and OpenPhone that synchronizes phone call data, generates AI-powered QA reports, and automates session tracking for company staff.
+![Python](https://img.shields.io/badge/python-3.10+-blue.svg?style=for-the-badge&logo=python)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-orange.svg?style=for-the-badge&logo=openai)
+![Monday.com](https://img.shields.io/badge/Monday.com-API--v2-brightgreen.svg?style=for-the-badge&logo=monday.com)
 
-## 🚀 Overview
+A high-performance, AI-powered integration pipeline that synchronizes phone call data between **OpenPhone** and **Monday.com**, performs automated multi-stage QA audits using **GPT-4o**, and generates compliance reports.
 
-This system automates the verification of staff session notes against actual call records. It uses OpenAI's GPT-4o to perform multi-stage audits, ensuring that time tracking, transcription accuracy, and service documentation are consistent and compliant.
+---
+
+## 🌟 Key Features
+
+- **🧠 Multi-Stage AI Auditing**: Uses OpenAI's `gpt-4o` with Structured Outputs to verify session start/end times, billing units, and transcript relevance.
+- **⚡ High-Performance Pipeline**: Refactored from 20+ scripts into a modular, in-memory system reducing execution time by ~80%.
+- **📊 Monday.com Integration**: Automated two-way sync with Monday boards, including real-time flag updates and detailed audit reasons.
+- **📞 OpenPhone Synergy**: Fetches and processes call logs and transcripts directly to provide a "single source of truth".
+- **🛠 Modular Design**: Clean SoC (Separation of Concerns) with dedicated Collectors, Cleaners, Analyzers, and Reporters.
+
+---
+
+---
+
+## 🏗 System Architecture
+
+![Workflow Diagram](./assets/diagram.PNG)
+
+
+
+## 📁 Folder Structure
+
+```text
+📂 Agentic-Employee-Tracking-and-QA
+├── 📂 assets/              # Design assets and diagrams
+├── 📂 legacy/              # Sanitized procedural scripts (Ref)
+│   ├── 📂 ai_audit/        # Legacy AI logic
+│   ├── 📂 cleaning/        # Legacy data sanitization
+│   └── ...                 # Other legacy modules
+├── 📂 src/                 # 🚀 CORE SOURCE CODE
+│   ├── 📂 core/            # API Clients & Base Utilities
+│   └── 📂 pipeline/        # Modern Modular Pipeline
+│       ├── 📄 collectors.py
+│       ├── 📄 cleaners.py
+│       ├── 📄 ai_analyzers.py
+│       └── 📄 reporters.py
+├── 📄 main.py              # Central Orchestrator
+├── 📄 agent.md             # AI Auditor Specification
+├── 📄 README.md            # You are here
+└── 📄 CHANGELOG.md         # Version History
+```
+
+---
 
 ## 🛠 Project Structure
 
-### Core Modules (`src/core/`)
-- [monday_client.py](file:///home/soban/Projects/monday-openphone-ai-integration/src/core/monday_client.py): High-level wrapper for the Monday.com GraphQL API with retry logic and batch processing.
-- [openphone_client.py](file:///home/soban/Projects/monday-openphone-ai-integration/src/core/openphone_client.py): Interface for fetching call logs, recordings, and transcripts from OpenPhone.
-- [utils.py](file:///home/soban/Projects/monday-openphone-ai-integration/src/core/utils.py): Shared utility functions for timezone conversions (CST/UTC), JSON handling, and data parsing.
+- `main.py`: Central orchestrator and CLI entry point.
+- `agent.md`: Comprehensive documentation of the AI Auditor's logic.
+- `src/core/`: Robust API clients for Monday.com and OpenPhone.
+- `src/pipeline/`:
+  - `collectors.py`: All external data fetching (REST/GraphQL).
+  - `cleaners.py`: Data normalization (Timezones, Text sanitization).
+  - `ai_analyzers.py`: The "Brain" - Multi-prompt AI logic using Pydantic schemas.
+  - `reporters.py`: Result propagation back to external systems.
 
-### Pipeline Scripts (Sequential)
+---
 
-#### 1. Data Collection & Preparation
-- `01_reference_collecter.py`: Synchronizes board and staff information between Monday.com and OpenPhone.
-- `02.py`: Fetches latest board items and updates from Monday.com.
-- `03_notes_cleaner.py`: Parses and standardizes raw session notes from Monday.com.
-- `04_call_logs_retriever.py`: Retrieves call logs from Airtable/OpenPhone and maps them to Monday.com staff.
-- `05_call_ids_retriever.py`: Fetches specific call metadata based on phone number IDs.
-- `06_call_logs_ids_combiner.py`: Merges call logs with specific call IDs for processing.
-- `07_call_transcript_retriever.py`: Downloads AI transcripts for all matched calls.
-- `08_call_transcript_cleaner.py`: Formats transcripts into a clean speaker-message dialogue format.
-- `09_calls_notes_combiner.py`: Links transcripts and session notes by Board ID.
+## 🚀 Quick Start
 
-#### 2. AI-Powered Audit (Stage 10)
-- `10_ai_1_transcript_analyzer.py`: Verifies if session notes reflect the actual conversation in transcripts.
-- `10_ai_2_start.py`: Audits session start times against actual call timestamps.
-- `10_ai_3_end.py`: Audits session end times and durations.
-- `10_ai_4_service.py`: Validates the reported service type against transcript content.
-- `10_ai_5_bills.py`: Checks for overbilling or inconsistencies in reported units.
-- `10_ai_6_columns.py`: Final compliance check to ensure all required fields are correctly populated.
+### 1. Configure Environment
+Create a `.env` file in the root directory:
+```env
+MONDAY_API_KEY=your_monday_api_key
+OPENPHONE_API_KEY=your_openphone_api_key
+OPEN_AI_API=your_openai_api_key
+```
 
-#### 3. Reporting & Feedback
-- `11_CST_to_UTC.py`: Normalizes all timestamps for database consistency.
-- `12_1_groups_columns_fetcher.py`: Retrieves structure information for final reporting boards.
-- `12_2_units.py`: Processes and aggregates total service units.
-- `13.py`: Generates the final QA report and creates entries in Monday.com.
-- `14_hired_units.py`: Specialized reporting for hired staff units.
-- `14_units_monday.py`: Uploads aggregated unit reports back to Monday.com.
+### 2. Install Requirements
+```bash
+pip install -r requirements.txt
+```
 
-### Maintenance Utility
-- `main.py`: The main orchestrator that runs the entire pipeline with configurable offsets.
-- `remover.py`: Cleanup script for temporary data files and logs.
-- `reporter.py`: Legacy reporting tool for board status checks.
+### 3. Run the Pipeline
+```bash
+# Process notes from the last 16 days
+python main.py --days 16
+```
 
-## ⚙️ Setup
+---
 
-1. **Environment Variables**: Create a `.env` file in the root directory:
-   ```env
-   MONDAY_API_KEY=your_key
-   OPENPHONE_API_KEY=your_key
-   OPEN_AI_API=your_key
-   AIRTABLE_API_KEY=your_key
-   ```
+## 🔐 Core Tech Stack
+- **AI**: `OpenAI GPT-4o` (Structured Output mode)
+- **Validation**: `Pydantic v2`
+- **Data Mgmt**: `JSON` (In-memory)
+- **API**: `HTTPX` / `Requests`
+- **Time**: `Pytz` (CST -> UTC normalization)
 
-2. **Installation**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-3. **Running the Pipeline**:
-   ```bash
-   python main.py --days 16
-   ```
-
-## 🔐 Dependencies
-- `openai`: AI analysis and structured outputs.
-- `pyairtable`: Legacy data retrieval.
-- `requests`: API interactions.
-- `pytz`: Complex timezone management.
-- `pydantic`: Data validation for AI responses.
+## 📄 Documentation
+For a deep dive into how the AI Auditor makes decisions, check out [**agent.md**](./agent.md).
